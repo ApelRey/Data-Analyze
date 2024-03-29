@@ -110,7 +110,7 @@ class StockExample(server.App):
         selected_column = params['ticker']
         plot_data = self.getData(params)
 
-        plot = plot_data.plot(x='Week', y=selected_column, style='-o', grid=True, figsize=(10, 6))
+        plot = plot_data.plot(x='Week', y=selected_column, style='-o', grid=True, figsize=(10, 6), color="green")
 
         plot.set_title(f"Stock Data for {selected_column}")
         plot.set_xlabel("Week")
