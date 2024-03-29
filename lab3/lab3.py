@@ -40,7 +40,7 @@ class StockExample(server.App):
         {"label": "Zhytomyr", "value": "Zhytomyr"}
     ]
 
-    YEAR_OPTIONS = [{"label": str(year), "value": str(year)} for year in range(1985, 2025)]
+    YEAR_OPTIONS = [{"label": int(year), "value": int(year)} for year in range(1985, 2025)]
 
     inputs = [
         {
