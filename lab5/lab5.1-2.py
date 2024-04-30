@@ -21,8 +21,8 @@ def harmonic_with_noise(amplitude, frequency, phase, noise_mean, noise_dispersio
 
     return t, y
 
-def filter_signal(y, filter_type='None', cutoff_freq=0.5, order=4):
-    b, a = signal.iirfilter(order, cutoff_freq, btype='low')
+def filter_signal(y, cutoff_freq=0.5, order=4):
+    b, a = signal.butter(order, cutoff_freq, btype='low', analog=False)
     filtered_y = signal.filtfilt(b, a, y)
     return filtered_y
 
@@ -32,10 +32,12 @@ def update(val):
     phase = phase_slider.val
     noise_mean = noise_mean_slider.val
     noise_dispersion = noise_dispersion_slider.val
+    cutoff_freq = cutoff_slider.val
+    order = order_slider.val
     show_noise = checkbox.get_status()[0]
 
     t, y = harmonic_with_noise(amplitude, frequency, phase, noise_mean, noise_dispersion, show_noise)
-    filtered_y = filter_signal(y)
+    filtered_y = filter_signal(y, cutoff_freq, order)
 
     line1.set_data(t, y)
     line2.set_data(t, filtered_y)
@@ -77,13 +79,15 @@ freq_slider = Slider(plt.axes([0.2, 0.35, 0.65, 0.03]), 'Frequency', 0.1, 5.0, v
 phase_slider = Slider(plt.axes([0.2, 0.3, 0.65, 0.03]), 'Phase', -np.pi, np.pi, valinit=INIT_PHASE, valstep=0.1)
 noise_mean_slider = Slider(plt.axes([0.2, 0.25, 0.65, 0.03]), 'Noise (Mean)', -1.0, 1.0, valinit=INIT_NOISE_MEAN, valstep=0.01)
 noise_dispersion_slider = Slider(plt.axes([0.2, 0.2, 0.65, 0.03]), 'Noise (Dispersion)', 0.00, 1.0, valinit=INIT_NOISE_DISPERSION, valstep=0.01)
+cutoff_slider = Slider(plt.axes([0.2, 0.15, 0.65, 0.03]), 'Cutoff Frequency', 0.01, 0.99, valinit=0.5, valstep=0.01)
+order_slider = Slider(plt.axes([0.2, 0.1, 0.65, 0.03]), 'Filter Order', 1.0, 20.0, valinit=4, valstep=1)
 
-checkbox = CheckButtons(plt.axes([0.3, 0.05, 0.2, 0.1]), ['Show Noise'], [SHOW_NOISE])
+checkbox = CheckButtons(plt.axes([0.3, 0.005, 0.2, 0.1]), ['Show Noise'], [SHOW_NOISE])
 
-reset_button = Button(plt.axes([0.5, 0.05, 0.1, 0.1]), 'Reset')
+reset_button = Button(plt.axes([0.5, 0.005, 0.1, 0.1]), 'Reset')
 reset_button.on_clicked(reset)
 
-new_noise_button = Button(plt.axes([0.6, 0.05, 0.1, 0.1]), 'New Noise')
+new_noise_button = Button(plt.axes([0.6, 0.005, 0.1, 0.1]), 'New Noise')
 new_noise_button.on_clicked(generate_new_noise)
 
 amp_slider.on_changed(update)
@@ -91,6 +95,8 @@ freq_slider.on_changed(update)
 phase_slider.on_changed(update)
 noise_mean_slider.on_changed(update)
 noise_dispersion_slider.on_changed(update)
+cutoff_slider.on_changed(update)
+order_slider.on_changed(update)
 checkbox.on_clicked(update)
 
 plt.show()

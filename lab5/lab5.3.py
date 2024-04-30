@@ -61,6 +61,10 @@ app.layout = html.Div([
             ],
             value='sma'
         ),
+        html.Label('Window Size'),
+        dcc.Slider(id='window-size-slider', min=2, max=20, step=1, value=1),
+        html.Label('Alpha'),
+        dcc.Slider(id='alpha-slider', min=0, max=1.0, step=0.1, value=0.1),
         html.Button('Reset', id='reset-button', n_clicks=0, style={'margin-top': '20px', 'margin-right': '10px', 'padding': '15px 30px', 'font-size': '16px'}),
         html.Button('New Noise', id='new-noise-button', n_clicks=0, style={'margin-top': '20px', 'padding': '15px 30px', 'font-size': '16px'}),
     ], style={'margin': '30px'})
@@ -86,11 +90,13 @@ app.layout = html.Div([
         Input('noise-disp-slider', 'value'),
         Input('show-noise-check', 'value'),
         Input('filter-dropdown', 'value'),
+        Input('window-size-slider', 'value'),
+        Input('alpha-slider', 'value'),
         Input('reset-button', 'n_clicks'),
         Input('new-noise-button', 'n_clicks')
     ]
 )
-def update_plots(amplitude, frequency, phase, noise_mean, noise_dispersion, show_noise, filter_type, reset_clicks, new_noise_clicks):
+def update_plots(amplitude, frequency, phase, noise_mean, noise_dispersion, show_noise, filter_type, window_size, alpha, reset_clicks, new_noise_clicks):
     ctx = dash.callback_context
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
@@ -102,6 +108,8 @@ def update_plots(amplitude, frequency, phase, noise_mean, noise_dispersion, show
         noise_dispersion = INIT_NOISE_DISPERSION
         show_noise = ['show']
         filter_type = 'sma'
+        window_size = 10
+        alpha = 0.1
 
     if button_id == 'new-noise-button':
         global BASE_NOISE, filtered_y
@@ -109,9 +117,9 @@ def update_plots(amplitude, frequency, phase, noise_mean, noise_dispersion, show
 
     t, y = harmonic_with_noise(amplitude, frequency, phase, noise_mean, noise_dispersion, 'show' in show_noise)
     if filter_type == 'sma':
-        filtered_y = simple_moving_average_filter(y, 10)  # Виклик фільтра з розміром вікна 10
+        filtered_y = simple_moving_average_filter(y, window_size)
     elif filter_type == 'exponential':
-        filtered_y = exponential_filter(y, 0.1)  # Виклик фільтра з параметром alpha = 0.1
+        filtered_y = exponential_filter(y, alpha)
 
     original_signal_fig = {
         'data': [
